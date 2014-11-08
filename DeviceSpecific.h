@@ -5,33 +5,73 @@
 //  Copyright (c) 2012 Patryk Adamkiewicz. All rights reserved.
 //
 
-#define IS_WIDESCREEN (fabs((double)[[UIScreen mainScreen]bounds].size.height - (double)568) < DBL_EPSILON)
-#define IS_NORMAL_SCREEN ([[UIScreen mainScreen]bounds].size.height == (double)480)
-#define DEVICE_IS_SIMULATOR ([[[UIDevice currentDevice]model] isEqualToString:@"iPhone Simulator"])
-#define DEVICE_IS_IPAD ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
-#define DEVICE_IS_IPHONE (([[[UIDevice currentDevice]model] isEqualToString: @"iPhone"]) || ([[[UIDevice currentDevice]model] isEqualToString:@"iPhone Simulator"]))
-#define DEVICE_IS_IPHONE_5 (DEVICE_IS_IPHONE && IS_WIDESCREEN)
-#define DEVICE_IS_IPHONE_4 (DEVICE_IS_IPHONE && IS_NORMAL_SCREEN)
-#define DEVICE_IS_IPOD   ([[[UIDevice currentDevice]model] isEqualToString:@"iPod touch"])
-
-#define DEVICE_SPECIFIC(iPhone, iPhone5) ((IS_IPHONE_5) ? (iPhone5) : (iPhone))
-
 #import <Foundation/Foundation.h>
 
+typedef NS_ENUM(NSUInteger, DeviceType) {
+    DeviceTypeSimulator,
+    DeviceTypeiPhone4,
+    DeviceTypeiPhone5,
+    DeviceTypeiPhone6,
+    DeviceTypeiPhone6plus,
+    DeviceTypeiPadStandard,
+    DeviceTypeiPadRetina,
+    DeviceTypeiPadMini
+};
+
+typedef NS_ENUM(NSUInteger, DeviceiOSVersion) {
+    DeviceiOSVersion4,
+    DeviceiOSVersion5,
+    DeviceiOSVersion6,
+    DeviceiOSVersion7,
+    DeviceiOSVersion8
+};
+
+/**
+ *	Helper class for executing blocks for specified device type or iOS version
+ */
 @interface DeviceSpecific : NSObject
 
-+ (UIStoryboard*)storyboard;
-+ (void)executeBlockForiPhone4:(void(^)())iPhoneBlock;
-+ (void)executeBlockForiPhone5:(void(^)())iPhoneBlock;
-+ (void)executeBlockForiPadFamily:(void(^)())iPadBlock;
-+ (void)executeBlockForiPadFamily:(void(^)())iPadBlock iPhoneFamily:(void(^)())iPhoneBlock;
-+ (void)executeBlockForiPad:(void(^)())iPadBlock iPhone5:(void(^)())iPhone5Block iPhone:(void(^)())iPhoneBlock;
+/**
+ *	Returns storyboard object for current device 
+ *
+ *  Warning! - using default names which are MainStoryboard_iPad and MainStoryboard_iPhone,
+ *  if you named them differently, then change names in implementation file.
+ *
+ *	@return	storyboard object
+ */
++ (UIStoryboard *)storyboard;
 
++ (NSString *)platformString;
+
+#pragma mark - Device Specific Blocks
+
++ (void)executeBlockForiPadFamily:(void(^)())iPadBlock;
++ (void)executeBlockForIPhoneFamily:(void(^)())iPhoneBlock;
++ (void)executeBlockForiPadFamily:(void(^)())iPadBlock iPhoneFamily:(void(^)())iPhoneBlock;
+
++ (void)executeBlockForDeviceType:(DeviceType)type block:(void(^)())block;
++ (void)executeBlockForDeviceiOSVersion:(DeviceiOSVersion)version block:(void(^)())block;
+
+#pragma mark - Testing for device type
+/**
+ *	Determines if device is of specified kind
+ *
+ *	@return	BOOL flag
+ */
++ (BOOL)deviceIsRealDevice;
 + (BOOL)deviceIsIPadFamily;
 + (BOOL)deviceIsIPhoneFamily;
-+ (BOOL)deviceIsIPhone5;
++ (BOOL)deviceHasIOSVersion:(DeviceiOSVersion)version;
++ (BOOL)deviceIsOfType:(DeviceType)type;
+
+#pragma mark - Screen sizes
+/**
+ *	Returns screen width or height
+ *
+ *	@return	screen width or height
+ */
 + (CGFloat)screenWidth;
 + (CGFloat)screenHeight;
 
-@end
 
+@end
